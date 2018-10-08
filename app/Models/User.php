@@ -18,6 +18,7 @@ class User extends Authenticatable
         'name', 'email', 'password', 'email_verified'
     ];
 
+    // 类型转换
     protected $casts = [
         'email_verified' => 'boolean'
     ];
@@ -30,4 +31,10 @@ class User extends Authenticatable
     protected $hidden = [
         'password', 'remember_token',
     ];
+
+    // 一个用户有多个地址 一对多关联
+    public function addresses()
+    {
+        return $this->hasMany(UserAddress::class);
+    }
 }
