@@ -20,6 +20,7 @@ class CreateProductSkusTable extends Migration
         Schema::create('product_skus', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title');
+            $table->string('description');
             $table->decimal('price', 10, 2);
             $table->unsignedInteger('stock');
             $table->unsignedInteger('product_id');
