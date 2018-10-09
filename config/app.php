@@ -78,8 +78,10 @@ return [
     |
     */
 
-    'locale' => 'en',
-    'faker_locale' => 'zh_CN',
+    'locale' => 'zh-CN',
+
+    'faker_locale' => 'zh-CN',
+
     /*
     |--------------------------------------------------------------------------
     | Application Fallback Locale
