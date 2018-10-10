@@ -106,6 +106,54 @@
             });
 
         });
+
+        // 加入购物车按钮点击事件
+        $('.btn-add-to-cart').click(function () {
+            let sku_id = $('label.active input[name=skus]').val();
+            let amount = $('.cart_amount input').val();
+
+            if (typeof(sku_id) === 'undefined') {
+                swal('请选择商品', '', 'error');
+                return false;
+            }
+
+            if (amount < 1) {
+                swal('商品数量至少为1件', '', 'error');
+                return false;
+            }
+
+            // 请求加入购物车接口
+            axios.post('{{ route('cart.add') }}', {
+                sku_id: sku_id,
+                amount: amount,
+            })
+                .then(function () { // 请求成功执行此回调
+                    swal('加入购物车成功', '', 'success');
+                }, function (error) { // 请求失败执行此回调
+                    if (error.response.status === 401) {
+
+                        // http 状态码为 401 代表用户未登陆
+                        swal('请先登录', '', 'error');
+
+                    } else if (error.response.status === 422) {
+
+                        // http 状态码为 422 代表用户输入校验失败
+                        var html = '<div>';
+                        _.each(error.response.data.errors, function (errors) {
+                            _.each(errors, function (error) {
+                                html += error+'<br>';
+                            })
+                        });
+                        html += '</div>';
+                        swal({content: $(html)[0], icon: 'error'})
+                    } else {
+
+                        // 其他情况应该是系统挂了
+                        swal('系统错误', '', 'error');
+                    }
+                })
+        });
+
     </script>
 @endsection
 

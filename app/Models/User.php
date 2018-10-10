@@ -45,4 +45,10 @@ class User extends Authenticatable
                     ->withTimestamps() // 代表中间表带有时间戳字段
                     ->orderBy('user_favorite_products.created_at', 'desc'); // 代表默认的排序方式是根据中间表的创建时间倒叙排序
     }
+
+    // 一个用户的购物车有多个商品 一对多关联
+    public function cartItems()
+    {
+        return $this->hasMany(CartItem::class);
+    }
 }
