@@ -233,6 +233,6 @@ return [
     ],
 
     // 用户自定义配置
-    'order_ttl' => 30
+    'order_ttl' => 1800
 
 ];
