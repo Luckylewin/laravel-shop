@@ -6,6 +6,8 @@ use Illuminate\Database\Eloquent\Model;
 
 class UserAddress extends Model
 {
+    const TABLE_NAME = 'user_addresses';
+
     //
     protected $fillable = [
         'province',
