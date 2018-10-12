@@ -11,11 +11,16 @@ class OrderPolicy
     use HandlesAuthorization;
 
     /**
-     * OrderPolicy constructor.
-     * @param User $user
-     * @param Order $order
+     * Create a new policy instance.
+     *
+     * @return void
      */
-    public function __construct(User $user, Order $order)
+    public function __construct()
+    {
+        //
+    }
+
+    public function own(User $user, Order $order)
     {
         return $order->user_id === $user->id;
     }
