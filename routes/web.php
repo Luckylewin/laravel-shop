@@ -56,6 +56,8 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('orders', 'OrdersController@store')->name('orders.store');
         // 用户订单中心
         Route::get('orders', 'OrdersController@index')->name('orders.index');
+        // 查看订单
+        Route::get('orders/{order}', 'OrdersController@show')->name('orders.show');
     });
 
 });
