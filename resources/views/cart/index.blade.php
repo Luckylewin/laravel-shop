@@ -159,6 +159,11 @@
                      });
                 });
 
+                // 检查item个数
+                if (req.items.length < 1) {
+                    return swal('购物车没有商品', '', 'error');
+                }
+
                 // 发起请求
                 axios.post('{{ route("orders.store") }}', req)
                      .then(function (response) {
