@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderPaid;
 use App\Exceptions\InvalidRequestException;
 use App\Models\Order;
 use Carbon\Carbon;
@@ -50,6 +51,8 @@ class PaymentController extends Controller
             return 'fail';
         }
 
+        $this->afterPaid($order);
+
         if ($order->paid_at) {
             return app('alipay')->success();
         }
@@ -59,6 +62,8 @@ class PaymentController extends Controller
             'payment_method' => 'alipay',
             'payment_no' => $data->trade_no
         ]);
+
+
 
         return app('alipay')->success();
     }
@@ -71,8 +76,6 @@ class PaymentController extends Controller
         if ($order->paid_at || $order->closed) {
             throw new InvalidRequestException('订单状态不正确');
         }
-
-
 
         try {
             // scan 方法为拉起微信扫码支付
@@ -115,7 +118,17 @@ class PaymentController extends Controller
             'payment_no'     => $data->transaction_id,
         ]);
 
+        $this->afterPaid($order);
+
         return app('wechat_pay')->success();
+    }
+
+    /**
+     * @param Order $order
+     */
+    protected function afterPaid(Order $order)
+    {
+        event(new OrderPaid($order));
     }
 
 }

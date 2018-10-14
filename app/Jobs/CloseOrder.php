@@ -11,7 +11,7 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 
 /**
- * 关闭订单延时任务
+ * 关闭订单延时任务(QUEUE_DRIVER=redis)
  * Class CloseOrder
  * @package App\Jobs
  */
