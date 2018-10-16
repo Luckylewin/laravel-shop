@@ -17,6 +17,7 @@ use Illuminate\Http\Request;
 
 class OrdersController extends Controller
 {
+    // 订单列表
     public function index(Request $request)
     {
         $orders = Order::query()
@@ -28,6 +29,7 @@ class OrdersController extends Controller
         return view('orders.index', ['orders' => $orders]);
     }
 
+    // 订单详情
     public function show(Order $order, Request $request)
     {
         // load 方法 延迟预加载 在已经查询处理的模型上调用
@@ -35,6 +37,23 @@ class OrdersController extends Controller
         return view('orders.show', ['order' => $order->load(['items.productSku', 'items.product'])]);
     }
 
+    // 收货处理
+    public function receive(Order $order, Request $request)
+    {
+        $this->authorize('own', $order);
+        
+        if ($order->ship_status != Order::SHIP_STATUS_DELIVERED) {
+            throw new InvalidRequestException('商品尚未发货');
+        }
+
+        $order->update([
+            'ship_status' => Order::SHIP_STATUS_RECEIVED
+        ]);
+
+        return redirect()->back();
+    }
+
+    // 用户下单
     public function store(OrderRequest $request, OrderService $orderService)
     {
         $user    = $request->user();

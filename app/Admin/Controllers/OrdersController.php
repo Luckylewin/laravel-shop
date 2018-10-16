@@ -2,6 +2,8 @@
 
 namespace App\Admin\Controllers;
 
+use App\Exceptions\InvalidRequestException;
+
 use App\Models\Order;
 use App\Http\Controllers\Controller;
 use Encore\Admin\Controllers\HasResourceActions;
@@ -9,6 +11,7 @@ use Encore\Admin\Form;
 use Encore\Admin\Grid;
 use Encore\Admin\Layout\Content;
 use Encore\Admin\Show;
+use Illuminate\Http\Request;
 
 class OrdersController extends Controller
 {
@@ -62,7 +65,7 @@ class OrdersController extends Controller
         $grid->paid_at('支付时间');
 
         $grid->ship_status('物流')->display(function($value) {
-            return Order::$refundStatusMap[$value];
+            return Order::$shipStatusMap[$value];
         });
 
         $grid->refund_status('退款状态');
@@ -116,5 +119,37 @@ class OrdersController extends Controller
         return $show;
     }
 
+    //  发货处理
+    public function ship(Order $order, Request $request)
+    {
+        // 判断当前订单是否支付
+        if (!$order->paid_at) {
+            throw new InvalidRequestException('该订单未支付');
+        }
+
+        // 判断订单发货状态
+        if ($order->ship_status !== Order::SHIP_STATUS_PENDING) {
+            throw new InvalidRequestException('该订单已经发货');
+        }
+
+        $data = $this->validate($request, [
+             // 快递公司
+            'express_company' => ['required'],
+             // 快递单号
+            'express_no' => ['required'],
+        ], [], [
+            'express_company' => '物流公司',
+            'express_no' => '物流单号'
+        ]);
+
+        // 订单状态改为已经发货 并存入物流信息
+        $order->update([
+            'ship_status' => Order::SHIP_STATUS_DELIVERED,
+            'ship_data' => $data
+        ]);
+
+        return redirect()->back();
+
+    }
 
 }

@@ -59,6 +59,9 @@ Route::group(['middleware' => 'auth'], function() {
         // 查看订单
         Route::get('orders/{order}', 'OrdersController@show')->name('orders.show');
 
+        // 订单收货处理
+        Route::post('orders/{order}/received', 'OrdersController@receive')->name('orders.received');
+
         // 支付宝支付
         Route::get('payment/{order}/alipay', 'PaymentController@payByAliPay')->name('payment.alipay');
         // 支付宝同步通知
