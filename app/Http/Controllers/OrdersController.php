@@ -50,7 +50,7 @@ class OrdersController extends Controller
             'ship_status' => Order::SHIP_STATUS_RECEIVED
         ]);
 
-        return redirect()->back();
+        return $order;
     }
 
     // 用户下单
