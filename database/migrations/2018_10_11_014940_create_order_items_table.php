@@ -31,7 +31,7 @@ class CreateOrderItemsTable extends Migration
             $table->unsignedInteger('rating')->nullable();
             // 用户评价
             $table->text('review')->nullable();
-            $table->timestamps();
+            $table->timestamp('reviewed_at')->nullable();
         });
     }
 
