@@ -2,6 +2,7 @@
 
 namespace App\Admin\Controllers;
 
+use App\Exceptions\InternalException;
 use App\Exceptions\InvalidRequestException;
 
 use App\Http\Requests\Admin\HandleRefundRequest;
@@ -164,7 +165,7 @@ class OrdersController extends Controller
         }
 
         if ($request->input('agree')) {
-            // TO DO
+            $this->_refundOrder($order);
         } else {
             $extra = $order->extra ?: [];
             $extra['refund_disagree_reason'] = $request->input('reason');
@@ -179,4 +180,43 @@ class OrdersController extends Controller
         return $order;
     }
 
+    // 具体退款逻辑
+    protected function _refundOrder(Order $order)
+    {
+        switch ($order->payment_method) {
+            case 'wechat':
+                // to do
+                break;
+            case 'alipay':
+                $refundNo = Order::findAvailableRefundNo();
+                $result = app('alipay')->refund([
+                    'out_trade_no' => $order->no, // 订单流水号
+                    'refund_amount' => $order->total_amount, // 退款金额 单位元
+                    'out_request_no' => $refundNo
+                ]);
+                // 如果有 sub_code 字段说明退款失败
+                if ($result->sub_code) {
+                    $extra = $order->extra;
+                    $extra['refund_failed_code'] = $result->sub_code;
+
+                    // 订单标记为退款失败
+                    $order->update([
+                        'refund_no'     => $refundNo,
+                        'refund_status' => Order::REFUND_STATUS_FAILED,
+                        'extra'         => $extra
+                    ]);
+                } else {
+                    $order->update([
+                        'refund_no'     => $refundNo,
+                        'refund_status' => Order::REFUND_STATUS_SUCCESS
+                    ]);
+                }
+
+                break;
+            default:
+                // 原则上不可能出现，这个只是为了代码健壮性
+                throw new InternalException('未知订单支付方式：'.$order->payment_method);
+                break;
+        }
+    }
 }

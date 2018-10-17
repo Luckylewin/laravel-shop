@@ -29,7 +29,7 @@ class AppServiceProvider extends ServiceProvider
         $this->app->singleton('alipay', function() {
             $config = config('pay.alipay');
             $config['notify_url'] = route('payment.alipay.notify');
-            $config['notify_url'] = 'http://requestbin.fullcontact.com/ymf2rnym';
+            $config['notify_url'] = 'http://requestbin.fullcontact.com/1jj1sdd1';
             $config['return_url'] = route('payment.alipay.return');
             // sandbox account : tcnvce0087@sandbox.com
 
