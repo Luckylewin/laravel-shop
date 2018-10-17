@@ -68,7 +68,9 @@ class OrdersController extends Controller
             return Order::$shipStatusMap[$value];
         });
 
-        $grid->refund_status('退款状态');
+        $grid->refund_status('退款状态')->display(function($value) {
+            return Order::$refundStatusMap[$value];
+        });
 
         $grid->disableCreateButton();
         $grid->actions(function ($actions) {

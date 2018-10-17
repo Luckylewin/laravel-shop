@@ -66,6 +66,9 @@ Route::group(['middleware' => 'auth'], function() {
         // 订单收货处理
         Route::post('orders/{order}/received', 'OrdersController@receive')->name('orders.received');
 
+        // 订单退款
+        Route::post('orders/{order}/apply_refund', 'OrdersController@applyRefund')->name('orders.apply_refund');
+
         // 支付宝支付
         Route::get('payment/{order}/alipay', 'PaymentController@payByAliPay')->name('payment.alipay');
         // 支付宝同步通知
