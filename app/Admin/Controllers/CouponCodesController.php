@@ -87,9 +87,7 @@ class CouponCodesController extends Controller
         $grid->id('ID')->sortable();
         $grid->name('名称');
         $grid->code('优惠码');
-        $grid->description('描述')->display(function() {
-            return $this->getDescriptionAttribute();
-        });;
+        $grid->description('描述');
         $grid->value('折扣')->display(function($value) {
             return $this->type == CouponCode::TYPE_FIXED ? '￥'.$value.'元' : $value.'%';
         });

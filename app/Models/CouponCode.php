@@ -38,6 +38,11 @@ class CouponCode extends Model
         'not_after'
     ];
 
+    // 附属字段
+    protected $appends = [
+        'description'
+    ];
+
     /**
      * 描述信息
      */
