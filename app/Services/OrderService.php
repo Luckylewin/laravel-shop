@@ -2,8 +2,10 @@
 
 namespace App\Services;
 
+use App\Exceptions\CouponCodeUnavailableException;
 use App\Exceptions\InvalidRequestException;
 use App\Jobs\CloseOrder;
+use App\Models\CouponCode;
 use App\Models\Order;
 use App\Models\OrderItem;
 use App\Models\ProductSku;
@@ -13,10 +15,13 @@ use Carbon\Carbon;
 
 class OrderService
 {
-    public function store(User $user, UserAddress $address, $remark, $items)
+    public function store(User $user, UserAddress $address, $remark, $items, CouponCode $couponCode = null)
     {
+        if ($couponCode) {
+            $couponCode->checkAvailable();
+        }
         // 开启一个数据事务
-        $order = \DB::transaction(function() use ($user, $address, $remark, $items) {
+        $order = \DB::transaction(function() use ($user, $address, $remark, $items, $couponCode) {
 
             // 更新此地址的最后使用时间
             $address->update(['last_used' => Carbon::now()]);
@@ -55,6 +60,15 @@ class OrderService
 
                 $item->save();
                 $totalAmount += $sku->price * $data['amount'];
+                if ($couponCode) {
+                    $couponCode->checkAvailable($totalAmount);
+                    $totalAmount = $couponCode->getAdjustPrice($totalAmount);
+                    $order->couponCode()->associate($couponCode);
+                    // 增加优惠券的用量 需要判断其返回值
+                    if ($couponCode->stockIncrement() <= 0) {
+                        throw new CouponCodeUnavailableException('该优惠券已被兑完');
+                    }
+                }
 
                 // 处理库存数量
                 if ($sku->decreaseStock($data['amount']) <= 0) {

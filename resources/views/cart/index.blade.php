@@ -149,9 +149,10 @@
                 // 构建请求参数，将用户选择的地址的i 和 备注的内容写入请求参数
                 var $form = $('#order-form');
                 var req = {
-                  address_id: $form.find('select[name=address]').val(),
-                  items: [],
-                  remark: $form.find('textarea[name=remark]').val()
+                    address_id: $form.find('select[name=address]').val(),
+                    items: [],
+                    remark: $form.find('textarea[name=remark]').val(),
+                    coupon_code: $('input[name=coupon_code]').val(), // 从优惠码输入框中获取优惠码
                 };
 
                 // 遍历 table 标签中带有 data-id 属性的 tr 标签,也就是每一个购物车中商品 SKU

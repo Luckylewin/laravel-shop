@@ -93,7 +93,7 @@ class Order extends Model
 
     public function couponCode()
     {
-        return $this->hasOne(CouponCode::class);
+        return $this->belongsTo(CouponCode::class);
     }
 
     // 生成订单号
