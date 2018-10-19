@@ -52,6 +52,10 @@ Route::group(['middleware' => 'auth'], function() {
         Route::post('cart', 'CartController@add')->name('cart.add');
         // 从购物车中移除
         Route::delete('cart/{sku}', 'CartController@remove')->name('cart.remove');
+
+        //优惠券查看
+        Route::get('coupon_codes/{code}', 'CouponCodesController@show')->name('coupon_codes.show');
+
         // 下单操作
         Route::post('orders', 'OrdersController@store')->name('orders.store');
         // 用户订单中心

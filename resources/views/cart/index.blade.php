@@ -72,6 +72,23 @@
                                     <textarea name="remark" class="form-control" rows="3"></textarea>
                                 </div>
                             </div>
+
+                            @if($cartItems->count())
+                            <!-- 优惠码开始 -->
+                            <div class="form-group">
+                                <label class="control-label col-sm-3">优惠码</label>
+                                <div class="col-sm-4">
+                                    <input type="text" class="form-control" name="coupon_code">
+                                    <span class="help-block" id="coupon_desc"></span>
+                                </div>
+                                <div class="col-sm-3">
+                                    <button type="button" class="btn btn-success" id="btn-check-coupon">检查</button>
+                                    <button type="button" class="btn btn-danger" style="display: none;" id="btn-cancel-coupon">取消</button>
+                                </div>
+                            </div>
+                            <!-- 优惠码结束 -->
+                            @endif
+
                             <div class="form-group">
                                 <div class="col-sm-offset-3 col-sm-3">
                                     <button type="button" class="btn btn-primary btn-create-order">提交订单</button>
@@ -102,12 +119,12 @@
                     buttons: ['取消', '确定'],
                     dangerMode: true,
                 })
-                    .then(function(willDelete) {
-                        // 用户点击 确定 按钮，willDelete 的值就会是 true，否则为 false
-                        if (!willDelete) {
+                    .then(function(willDevare) {
+                        // 用户点击 确定 按钮，willDevare 的值就会是 true，否则为 false
+                        if (!willDevare) {
                             return;
                         }
-                        axios.delete('/cart/' + id)
+                        axios.devare('/cart/' + id)
                             .then(function () {
                                 location.reload();
                             })
@@ -130,8 +147,8 @@
             // 监听创建订单按钮的点击事件
             $('.btn-create-order').click(function() {
                 // 构建请求参数，将用户选择的地址的i 和 备注的内容写入请求参数
-                let $form = $('#order-form');
-                let req = {
+                var $form = $('#order-form');
+                var req = {
                   address_id: $form.find('select[name=address]').val(),
                   items: [],
                   remark: $form.find('textarea[name=remark]').val()
@@ -140,14 +157,14 @@
                 // 遍历 table 标签中带有 data-id 属性的 tr 标签,也就是每一个购物车中商品 SKU
                 $('table tr[data-id]').each(function() {
                      // 获取当前行的单选框
-                     let $checkbox = $(this).find('input[name=select][type=checkbox]');
+                     var $checkbox = $(this).find('input[name=select][type=checkbox]');
                      // 如果单选框被禁用或者没有被选中则跳过
                      if($checkbox.prop('disabled') || !$checkbox.prop('checked')) {
                          return;
                      }
 
                      // 获取当前行中输入框中数量
-                     let $amount = $(this).find('input[name=amount]');
+                     var $amount = $(this).find('input[name=amount]');
                      // 如果用户将数量设为0 或者 不是一个数 跳过
                      if ($amount.val() === 0 || isNaN($amount.val())) {
                          return;
@@ -174,7 +191,7 @@
                      }, function(error) {
                          if (error.response.status === '422') {
                              // http 状态码为 422 代表用户输入校验失败
-                             let html = '<div>';
+                             var html = '<div>';
                              _.each(error.response.data.errors, function (errors) {
                                  _.each(errors, function (error) {
                                      html += error+'<br>'
@@ -189,6 +206,43 @@
 
            });
 
+
+            // 检查优惠券
+            $('#btn-check-coupon').click(function() {
+                // 获取用户输入的优惠码
+                var code = $('input[name=coupon_code]').val();
+                // 如果没有输入则弹框提示
+                if (!code) {
+                    swal('请输入优惠码', '', 'warning');
+                    return false;
+                }
+
+                // 调用检查接口
+                axios.get('/coupon_codes/' + encodeURIComponent(code))
+                    .then(function (response) {
+                        $('#coupon_desc').text(response.data.description); // 输出优惠信息
+                        $('#input[name=coupon_code]').prop('readonly', true); // 禁用输入框
+                        $('#btn-cancel-coupon').show();
+                        $('#btn-check-coupon').hide();
+                    }, function (error) {
+                        var response = error.response;
+                        if (response.status === 404) {
+                            swal('优惠码不存在', '', 'error');
+                        } else if (response.status === 403) {
+                            swal(response.data.msg, '', 'error')
+                        } else {
+                            swal('系统内部错误', '', 'error')
+                        }
+                    });
+
+                // 隐藏 按钮点击事件
+                $('#btn-cancel-coupon').click(function () {
+                    $('#coupon_desc').text(''); // 隐藏优惠信息
+                    $('input[name=coupon_code]').prop('readonly', false);  // 启用输入框
+                    $('#btn-cancel-coupon').hide(); // 隐藏 取消 按钮
+                    $('#btn-check-coupon').show(); // 显示 检查 按钮
+                });
+            });
         });
     </script>
 @endsection
