@@ -18,7 +18,7 @@ class OrderService
     public function store(User $user, UserAddress $address, $remark, $items, CouponCode $couponCode = null)
     {
         if ($couponCode) {
-            $couponCode->checkAvailable();
+            $couponCode->checkAvailable($user);
         }
         // 开启一个数据事务
         $order = \DB::transaction(function() use ($user, $address, $remark, $items, $couponCode) {
@@ -61,7 +61,7 @@ class OrderService
                 $item->save();
                 $totalAmount += $sku->price * $data['amount'];
                 if ($couponCode) {
-                    $couponCode->checkAvailable($totalAmount);
+                    $couponCode->checkAvailable($user, $totalAmount);
                     $totalAmount = $couponCode->getAdjustPrice($totalAmount);
                     $order->couponCode()->associate($couponCode);
                     // 增加优惠券的用量 需要判断其返回值

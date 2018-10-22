@@ -200,7 +200,9 @@
                              });
                              html += '</div>';
                              swal({content: $(html)[0], icon: 'error'})
-                         } else {
+                         } else if (error.response.status === 403) { // 这里判断状态 403
+                             swal(error.response.data.msg, '', 'error');
+                         }  else {
                              swal('系统错误', '', 'error')
                          }
                      });
